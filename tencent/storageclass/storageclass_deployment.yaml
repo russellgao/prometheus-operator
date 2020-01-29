@@ -1,0 +1,78 @@
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: nfs-client-provisioner-alertmanager
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nfs-client-provisioner
+      volumefor: alertmanager
+
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: nfs-client-provisioner
+        volumefor: alertmanager
+    spec:
+      serviceAccountName: nfs-client-provisioner
+      containers:
+        - name: nfs-client-provisioner-alertmanager
+          image: quay.io/external_storage/nfs-client-provisioner:latest
+          volumeMounts:
+            - name: nfs-client-root
+              mountPath: /persistentvolumes
+          env:
+            - name: PROVISIONER_NAME
+              value: fuseim.pri/ifs-alertmanager
+            - name: NFS_SERVER
+              value: 172.16.xx.xx
+            - name: NFS_PATH
+              value: /prometheus/alertmanager
+      volumes:
+        - name: nfs-client-root
+          nfs:
+            server: 172.16.xx.x
+            path: /prometheus/alertmanager
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: nfs-client-provisioner-prometheus
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nfs-client-provisioner
+      volumefor: prometheus
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: nfs-client-provisioner
+        volumefor: prometheus
+    spec:
+      serviceAccountName: nfs-client-provisioner
+      containers:
+        - name: nfs-client-provisioner-prometheus
+          image: quay.io/external_storage/nfs-client-provisioner:latest
+          volumeMounts:
+            - name: nfs-client-root
+              mountPath: /persistentvolumes
+          env:
+            - name: PROVISIONER_NAME
+              value: fuseim.pri/ifs-prometheus
+            - name: NFS_SERVER
+              value: 172.16.xx.xx
+            - name: NFS_PATH
+              value: /prometheus/prometheus
+      volumes:
+        - name: nfs-client-root
+          nfs:
+            server: 172.16.xx.x
+            path: /prometheus/prometheus
