@@ -1,0 +1,28 @@
+# 参考文档: https://help.aliyun.com/document_detail/130727.html?spm=a2c4g.11174283.6.712.67b42ceecpBLrK
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: alicloud-nas-prometheus
+mountOptions:
+- nolock,tcp,noresvport
+- vers=3
+parameters:
+  server: "xxxx.cn-hangzhou.nas.aliyuncs.com:/prometheus/prometheus/"
+  driver: flexvolume
+provisioner: alicloud/nas
+reclaimPolicy: Retain
+
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: alicloud-nas-alertmanager
+mountOptions:
+- nolock,tcp,noresvport
+- vers=3
+parameters:
+  server: "xxxx.cn-hangzhou.nas.aliyuncs.com:/prometheus/alertmanager/"
+  driver: flexvolume
+provisioner: alicloud/nas
+reclaimPolicy: Retain

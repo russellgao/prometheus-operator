@@ -1,0 +1,40 @@
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: prometheus-webhook-dingtalk
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus-webhook-dingtalk
+  template:
+    metadata:
+      labels:
+        app: prometheus-webhook-dingtalk
+    spec:
+      containers:
+        - name: prometheus-webhook-dingtalk
+          image: russellgao/prometheus-webhook-dingtalk:0.3.2
+          args:
+            - --ding.profile=tesl=https://oapi.dingtalk.com/robot/send?access_token=xxxx
+            # xxxx 需要替换成dingding token
+          imagePullPolicy: IfNotPresent
+      imagePullSecrets:
+      - name: harbor
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-webhook-dingtalk-custerip
+  namespace: monitoring
+spec:
+  selector:
+    app: prometheus-webhook-dingtalk
+  type: ClusterIP
+  ports:
+    - name: 'port'
+      protocol: TCP
+      port: 8060
+      targetPort: 8060
